@@ -1,0 +1,33 @@
+.main {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.content {
+  width: 400px;
+}
+
+.formItem {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.formItem label {
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.actions {
+  width: 100%;
+  display: flex;
+}
+
+.actions button:not(:first-child) {
+  margin-left: 20px;
+}

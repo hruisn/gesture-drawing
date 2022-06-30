@@ -9,11 +9,15 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import fs from 'fs';
+import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import { Channels } from './api';
+
+const isDarwin = process.platform === 'darwin';
 
 export default class AppUpdater {
   constructor() {
@@ -24,12 +28,6 @@ export default class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
-
-ipcMain.on('ipc-example', async (event, arg) => {
-  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
-  console.log(msgTemplate(arg));
-  event.reply('ipc-example', msgTemplate('pong'));
-});
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -56,6 +54,7 @@ const installExtensions = async () => {
     .catch(console.log);
 };
 
+
 const createWindow = async () => {
   if (isDebug) {
     await installExtensions();
@@ -69,12 +68,17 @@ const createWindow = async () => {
     return path.join(RESOURCES_PATH, ...paths);
   };
 
+  app.dock.setIcon(getAssetPath('icon.png'))
+
   mainWindow = new BrowserWindow({
     show: false,
-    width: 1024,
-    height: 728,
+    width: 800,
+    height: 800,
+    minWidth: 500,
+    minHeight: 500,
     icon: getAssetPath('icon.png'),
     webPreferences: {
+      webSecurity: false,
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
@@ -112,6 +116,89 @@ const createWindow = async () => {
   new AppUpdater();
 };
 
+const getDirFilePaths = async (dir: string): Promise<string[]> => {
+  const dirents = await fs.promises.readdir(dir, {
+    withFileTypes: true,
+  });
+
+  const getFilePath = (name: string) => path.join(dir, '/', name);
+
+  const filePaths = dirents
+    .filter((d) => d.isFile())
+    .map((d) => getFilePath(d.name));
+
+  const dirFilePaths = (
+    await Promise.all(
+      dirents
+        .filter((d) => d.isDirectory())
+        .map((d) => getDirFilePaths(getFilePath(d.name)))
+    )
+  ).flat();
+
+  return [...filePaths, ...dirFilePaths];
+};
+
+const supportedImageExtensions = [
+  '.anpg',
+  '.bmp',
+  '.gif',
+  '.jpg',
+  '.jpeg',
+  '.jfif',
+  '.pjpeg',
+  '.pjp',
+  '.png',
+  '.svg',
+  '.webp',
+];
+
+ipcMain.handle(
+  Channels.GET_IMAGE_PATHS_FROM_FIR,
+  async (_e: Event, dirPath: string) => {
+    return getDirFilePaths(dirPath)
+      .then((filePaths) =>
+        filePaths.filter((p) =>
+          supportedImageExtensions.includes(path.extname(p))
+        )
+      )
+      .catch((err) => log.error(err));
+  }
+);
+
+ipcMain.handle(Channels.GET_DIR_NAME, async (_e: Event, dirPath: string) => {
+  return path.basename(dirPath);
+});
+
+ipcMain.handle(Channels.SELECT_DIR, async () => {
+  if (!mainWindow) return;
+  return dialog
+    .showOpenDialog(mainWindow, {
+      properties: ['openDirectory'],
+    })
+    .then((result) => {
+      if (!result.canceled && result.filePaths.length !== 0) {
+        return result.filePaths[0];
+      } else return;
+    })
+    .catch((err) => log.error(err));
+});
+
+ipcMain.handle(Channels.CONFIRM, async (_e: Event, question: string) => {
+  if (!mainWindow) return;
+  return dialog
+    .showMessageBox(mainWindow, {
+      type: 'question',
+      buttons: ['Cancel', 'Ok'],
+      defaultId: 1,
+      title: 'Question',
+      message: question,
+    })
+    .then((result) => {
+      return result.response === 1;
+    })
+    .catch((err) => log.error(err));
+});
+
 /**
  * Add event listeners...
  */
@@ -119,7 +206,7 @@ const createWindow = async () => {
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed
-  if (process.platform !== 'darwin') {
+  if (!isDarwin) {
     app.quit();
   }
 });
