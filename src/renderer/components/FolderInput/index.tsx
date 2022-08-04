@@ -45,7 +45,13 @@ const FolderInput: React.FC<FolderInputProps> = ({
       );
       if (!selectedImagePaths || selectedImagePaths.length === 0) return;
 
-      setFolder(getFolderInfo({ dirName, dirPath, imagePaths }));
+      setFolder(
+        getFolderInfo({
+          dirName: selectedDirName,
+          dirPath: selectedDirPath,
+          imagePaths: selectedImagePaths,
+        })
+      );
 
       onChange({
         dirName: selectedDirName,
