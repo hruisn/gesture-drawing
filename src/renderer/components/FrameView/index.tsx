@@ -30,7 +30,7 @@ const FrameView: React.FC<FrameViewProps> = ({
   useEffect(() => {
     start();
     return () => reset();
-  }, [imagePath]);
+  }, [imagePath, reset, start]);
 
   const pauseHandler = isRunning ? pause : resume;
   const prevHandler = onPrev || (() => {});
@@ -41,6 +41,7 @@ const FrameView: React.FC<FrameViewProps> = ({
     const wantsToStop = await window.appApi.confirm('Stop drawing?');
     if (wantsToStop) onStop();
     else resume();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imagePath, onStop, pause, resume]);
 
   useKeyPress(pauseHandler, ['Space'], [isRunning]);
@@ -51,7 +52,7 @@ const FrameView: React.FC<FrameViewProps> = ({
   return (
     <div className={styles.frame}>
       <figure className={styles.frameImage}>
-        <img src={`file:///${imagePath}`} />
+        <img src={`file:///${imagePath}`} alt="" />
       </figure>
       <div className={styles.controls}>
         <Icon

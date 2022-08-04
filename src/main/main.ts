@@ -54,7 +54,6 @@ const installExtensions = async () => {
     .catch(console.log);
 };
 
-
 const createWindow = async () => {
   if (isDebug) {
     await installExtensions();
@@ -68,7 +67,7 @@ const createWindow = async () => {
     return path.join(RESOURCES_PATH, ...paths);
   };
 
-  app.dock.setIcon(getAssetPath('icon.png'))
+  app.dock.setIcon(getAssetPath('icon.png'));
 
   mainWindow = new BrowserWindow({
     show: false,
@@ -170,7 +169,7 @@ ipcMain.handle(Channels.GET_DIR_NAME, async (_e: Event, dirPath: string) => {
 });
 
 ipcMain.handle(Channels.SELECT_DIR, async () => {
-  if (!mainWindow) return;
+  if (!mainWindow) return Promise.reject();
   return dialog
     .showOpenDialog(mainWindow, {
       properties: ['openDirectory'],
@@ -178,13 +177,16 @@ ipcMain.handle(Channels.SELECT_DIR, async () => {
     .then((result) => {
       if (!result.canceled && result.filePaths.length !== 0) {
         return result.filePaths[0];
-      } else return;
+      }
+      return null;
     })
-    .catch((err) => log.error(err));
+    .catch((err) => {
+      log.error(err);
+    });
 });
 
 ipcMain.handle(Channels.CONFIRM, async (_e: Event, question: string) => {
-  if (!mainWindow) return;
+  if (!mainWindow) return Promise.reject();
   return dialog
     .showMessageBox(mainWindow, {
       type: 'question',

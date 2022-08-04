@@ -58,7 +58,8 @@
   "jest": {
     "moduleDirectories": [
       "node_modules",
-      "release/app/node_modules"
+      "release/app/node_modules",
+      "src"
     ],
     "moduleFileExtensions": [
       "js",
@@ -161,8 +162,8 @@
     "webpack-merge": "^5.8.0"
   },
   "build": {
-    "productName": "ElectronReact",
-    "appId": "org.erb.ElectronReact",
+    "productName": "GestureDrawing",
+    "appId": "GestureDrawing",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
     "files": [

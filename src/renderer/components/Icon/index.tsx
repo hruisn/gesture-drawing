@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-props-no-spreading */
 interface IconProps extends React.HTMLAttributes<HTMLOrSVGElement> {
   name: 'play' | 'pause' | 'stop' | 'skip-start' | 'skip-end';
 }

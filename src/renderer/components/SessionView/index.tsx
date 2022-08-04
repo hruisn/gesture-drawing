@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/label-has-associated-control */
 import { useEffect, useState } from 'react';
 import { FolderConfig, Session } from 'renderer/types';
 import Button from 'renderer/components/Button';

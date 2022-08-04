@@ -15,6 +15,7 @@ const Button: React.FC<ButtonProps> = ({
 }) => {
   return (
     <button
+      // eslint-disable-next-line react/button-has-type
       type={type || 'button'}
       className={cx(
         styles.button,

@@ -34,19 +34,26 @@ const FolderInput: React.FC<FolderInputProps> = ({
   const openDialog = useCallback(
     async (e: React.MouseEvent<HTMLButtonElement>) => {
       e.currentTarget.blur();
-      const dirPath = await window.appApi.selectDir();
-      if (!dirPath) return;
+      const selectedDirPath = await window.appApi.selectDir();
+      if (!selectedDirPath) return;
 
-      const dirName = await window.appApi.getDirName(dirPath);
-      if (!dirName) return;
+      const selectedDirName = await window.appApi.getDirName(selectedDirPath);
+      if (!selectedDirName) return;
 
-      const imagePaths = await window.appApi.getImagePathsFromDir(dirPath);
-      if (!imagePaths || imagePaths.length === 0) return;
+      const selectedImagePaths = await window.appApi.getImagePathsFromDir(
+        selectedDirPath
+      );
+      if (!selectedImagePaths || selectedImagePaths.length === 0) return;
 
       setFolder(getFolderInfo({ dirName, dirPath, imagePaths }));
 
-      onChange({ dirName, dirPath, imagePaths });
+      onChange({
+        dirName: selectedDirName,
+        dirPath: selectedDirPath,
+        imagePaths: selectedImagePaths,
+      });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [onChange]
   );
 

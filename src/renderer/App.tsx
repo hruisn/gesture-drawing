@@ -15,14 +15,14 @@ const App: React.FC = () => {
 
   const canSwitchToPrev = isActive && activeImageIndex > 0;
 
-  const start = (session: Session, index: number) => {
-    setSession(session);
+  const start = (s: Session, index: number) => {
+    setSession(s);
     setActiveImageIndex(index);
     setStarted(true);
   };
 
-  const onStart = (session: Session) => start(session, 0);
-  const onResume = (session: Session) => start(session, activeImageIndex || 0);
+  const onStart = (s: Session) => start(s, 0);
+  const onResume = (s: Session) => start(s, activeImageIndex || 0);
   const onStop = () => setStarted(false);
   const onPrev = () =>
     canSwitchToPrev && setActiveImageIndex(activeImageIndex - 1);
@@ -52,14 +52,14 @@ const App: React.FC = () => {
         onStop={onStop}
       />
     );
-  } else
-    return (
-      <SessionView
-        session={session}
-        onStart={onStart}
-        onResume={isActive && canSwitchToPrev ? onResume : undefined}
-      />
-    );
+  }
+  return (
+    <SessionView
+      session={session}
+      onStart={onStart}
+      onResume={isActive && canSwitchToPrev ? onResume : undefined}
+    />
+  );
 };
 
 export default App;

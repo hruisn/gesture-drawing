@@ -28,7 +28,7 @@ export const useCountDownTimer: (
     startedTime: null,
     lastInterval: null,
     timeLeft: totalTime,
-    totalTime: totalTime,
+    totalTime,
     requestId: null,
   };
 
@@ -104,6 +104,7 @@ export const useCountDownTimer: (
 
   useEffect(() => {
     return () => cancelAnimationFrame();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { timeLeft, isRunning, start, resume, pause, reset };
@@ -112,7 +113,7 @@ export const useCountDownTimer: (
 export const useKeyPress: (
   cb: () => void,
   keyCodes: string[],
-  dependencies?: any[]
+  dependencies?: unknown[]
 ) => void = (cb, keyCodes, dependencies) => {
   const downHandler = (e: KeyboardEvent) => {
     e.preventDefault();
@@ -126,5 +127,6 @@ export const useKeyPress: (
     return () => {
       window.removeEventListener('keydown', downHandler);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, dependencies || []);
 };
