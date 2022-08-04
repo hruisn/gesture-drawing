@@ -13,6 +13,7 @@ import fs from 'fs';
 import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+import mime from 'mime';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import { Channels } from './api';
@@ -137,29 +138,17 @@ const getDirFilePaths = async (dir: string): Promise<string[]> => {
   return [...filePaths, ...dirFilePaths];
 };
 
-const supportedImageExtensions = [
-  '.anpg',
-  '.bmp',
-  '.gif',
-  '.jpg',
-  '.jpeg',
-  '.jfif',
-  '.pjpeg',
-  '.pjp',
-  '.png',
-  '.svg',
-  '.webp',
-];
+const isImageMimeType = (filepath: string): boolean => {
+  const regexp = new RegExp(/bmp|ico|gif|jpeg|png|svg|webp/);
+  const mimetype = mime.getType(filepath);
+  return (mimetype && regexp.test(mimetype)) || false;
+};
 
 ipcMain.handle(
   Channels.GET_IMAGE_PATHS_FROM_FIR,
   async (_e: Event, dirPath: string) => {
     return getDirFilePaths(dirPath)
-      .then((filePaths) =>
-        filePaths.filter((p) =>
-          supportedImageExtensions.includes(path.extname(p))
-        )
-      )
+      .then((filePaths) => filePaths.filter((p) => isImageMimeType(p)))
       .catch((err) => log.error(err));
   }
 );
