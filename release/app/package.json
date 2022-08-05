@@ -1,6 +1,6 @@
 {
   "name": "gesture-drawing",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Gesture drawing",
   "license": "MIT",
   "main": "./dist/main/main.js",
